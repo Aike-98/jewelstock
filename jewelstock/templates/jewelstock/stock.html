@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block head_title %}stock{% endblock %}
+{% block body_title %}stock{% endblock %}
+
+
+{% block content %}
+<table class="table">
+    <tr>
+        <th>商品名</th>
+        <th>状態</th>
+        <th>アイテムID</th>
+    </tr>
+    {% for item in items %}
+
+    <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.get_now_progress }}</td>
+        <td>{{ item.id }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+{% endblock %}

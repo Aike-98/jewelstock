@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -45,9 +45,14 @@ INSTALLED_APPS = [
     'bootstrapform',
 ]
 
-
+LOGIN_REDIRECT_URL  = "/"
+LOGOUT_REDIRECT_URL = "login"
 AUTH_USER_MODEL = 'accounts.CustomUser'
 ACCOUNT_FORMS   = { "signup":"accounts.forms.SignupForm"}
+
+# DEBUGがTrueのとき、メールの内容はすべて端末に表示させる
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -126,6 +131,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# media
+MEDIA_URL   = "/media/"
+MEDIA_ROOT  = BASE_DIR / "media"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

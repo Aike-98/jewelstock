@@ -14,13 +14,16 @@ class ProductCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', )
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_code', 'name', 'get_categories_by_product', 'description', 'price')
+    list_display = ('product_code', 'name', 'get_categories_str', 'description', 'price')
 
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = ('product', 'image_view')
 
 class MaterialAdmin(admin.ModelAdmin):
     list_display = ('name', 'supplier', 'stock', 'unit')
+
+class ItemMaterialAdmin(admin.ModelAdmin):
+    list_display = ('item', 'material', 'quantity')
 
 class ItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'product', 'product_date', 'sold_date', 'get_materials_by_item')
@@ -43,6 +46,7 @@ admin.site.register(ProductCategory, ProductCategoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductImage, ProductImageAdmin)
 admin.site.register(Material, MaterialAdmin)
+admin.site.register(ItemMaterial, ItemMaterialAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Process, ProcessAdmin)

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block head_title %}progress{% endblock %}
+{% block body_title %}progress{% endblock %}
+
+
+{% block content %}
+
+{# 検索フォーム #}
+<form action="" class="form p-3 bg-warning">
+    <span>作業所名</span>
+    <select name="search_id">
+            {% for workplace in workplaces_all %}
+                <option value="{{ workplace.pk }}" {% if workplace.pk == request.GET.search_id %} selected {% endif %}>
+                    {{workplace.name}}{{workplace.pk}}{{request.GET.search_id}}
+                    <script>
+                        console.log(typeof {{workplace.pk}});
+                        console.log(typeof {{request.GET.search_id}});
+                        console.log({{workplace.pk}}=={{request.GET.search_id}});
+                        console.log('===');
+                    </script>
+                </option>
+            {% endfor %}
+    </select>
+    
+    <button type="submit" class="btn btn-primary">検索</button>
+</form>
+
+{# 工程表 #}
+<table class="table">
+    <tr>
+        <th>作業所</th>
+        <th>工程</th>
+    </tr>
+    
+    {% for workplace in workplaces %}
+        {% for progress in workplace.get_progresses %}
+        {# 作業が登録されていれば表示 #}
+            <tr>
+                {# ループの初回のみ結合セルを表示 #}
+                {% if forloop.first %}
+                    <th rowspan="{{ workplace.get_progresses|length }}">
+                        {{ workplace.name }}
+                    </th>
+                {% endif %}
+                <td>{{progress.process.operation}} : {{progress.start_date}} - {{progress.due_date|default:''}} </td>
+            </tr>
+        {% empty %}
+        {# 作業が登録されていなければ作業なしと表示 #}
+            <tr>
+                <th>{{workplace.name}}</th>
+                <td>作業なし</td>
+            </tr>
+        {% endfor %}
+    {% endfor %}
+
+</table>
+
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+</script>
+{% endblock %}

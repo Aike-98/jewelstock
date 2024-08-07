@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block head_title %}products{% endblock %}
+{% block body_title %}products{% endblock %}
+
+
+{% block content %}
+{# 検索フォーム #}
+<form action="" class="form p-3 bg-warning">
+    <label>商品名<input type="text" name="keyword" value="{{ request.GET.keyword }}"></label>
+    <button type="submit" class="btn btn-primary">検索</button>
+</form>
+
+{# 商品リスト #}
+
+<table class="table">
+    <tr>
+        <th>商品名</th>
+        <th>商品コード</th>
+        <th>カテゴリ</th>
+        <th>サイズ</th>
+        <th>重量</th>
+        <th>操作</th>
+    </tr>
+
+    {% for product in products %}
+    <tr>
+        {# 商品名 #}
+        <td>{{ product.name }}</td>
+
+        {# 商品コード #}
+        <td>{{ product.product_code }}</td>
+
+        {# カテゴリ #}
+        <td>
+            {% for category in product.category.all %}
+                {{ category }}<br>
+            {% endfor %}
+        </td>
+        
+        {# サイズ #}
+        <td>
+            {{ product.size|default:'-' }}
+        </td>
+
+        {# 重量 #}
+        <td>
+            {{ product.weight|default:'-' }}
+        </td>
+
+        {# 操作 #}
+        <td>
+            <a href="" class="btn btn-primary">詳細</a>
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+{% endblock %}
+
+{% block script %}
+{# 検索フォーム #}
+<script>
+
+
+</script>
+{% endblock %}

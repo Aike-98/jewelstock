@@ -16,6 +16,9 @@ class Workplace(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_progresses(self):
+        return Progress.objects.filter(process__workplace=self)
 
 # 所属
 class Assignment(models.Model):
@@ -56,9 +59,11 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
-    def get_categories_by_product(self):
+    def get_categories_str(self):
         return "\n".join([category.name for category in self.category.all()])
 
+    def get_categories_obj(self):
+        return self.category_set.all()
     
 # 商品画像
 def get_photos_path(instance, filename):
@@ -95,14 +100,17 @@ class Item(models.Model):
     def get_materials_by_item(self):
         return "\n".join([material.name for material in self.item_material.all()])
     
-    def get_now_progress(self):
+    def get_now_progresses(self):
         now = timezone.now()
         query = Q()
         query &= Q(item=self)
         query &= Q(start_date__lte=now)
         query &= Q(end_date__isnull=True)
-        progress = Progress.objects.filter(query)
-        return "\n".join([obj.process.operation for obj in progress])
+        progresses = Progress.objects.filter(query)
+        return progresses
+    
+    def get_all_progresses(self):
+        return Progress.objects.filter(item=self).order_by('start_date').reverse()
 
 # 材料-アイテムの中間テーブル
 class ItemMaterial(models.Model):

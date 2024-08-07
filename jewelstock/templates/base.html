@@ -47,27 +47,30 @@
             </span>
         </header>
 
-        <h1>
-            {% block body_title%}{% endblock %}
-        </h1>
+        <div class="row mx-0">
 
-        <div class="row">
-
+        {# サイドバー #}
         {% if request.user.is_authenticated %}
         <div class="col-lg-2 navigation h-100 bg-secondary">
             <ul>
                 <li><a href="{% url 'jewelstock:stock' %}">在庫管理</a></li>
                 <li><a href="">発注管理</a></li>
-                <li><a href="">工程管理</a></li>
-                <li><a href="">商品管理</a></li>
+                <li><a href="{% url 'jewelstock:progress' %}">工程管理</a></li>
+                <li><a href="{% url 'jewelstock:products' %}">商品管理</a></li>
                 <li><a href="">売上管理</a></li>
                 <li><a href="">ユーザー管理</a></li>
             </ul>
         </div>
         {% endif %}
 
-        <div class="col-lg-10 container">
-            {% block content %}{% endblock %}
+        {# コンテンツ #}
+        <div class="col-lg-10">
+            <h1>
+                {% block body_title%}{% endblock %}
+            </h1>
+            <div class="content m-3">
+                {% block content %}{% endblock %}
+            </div>
         </div>
 
         </div>

@@ -76,7 +76,7 @@
         <td><input type="checkbox" id="{{ item.id }}"></td>
 
         {# 商品名 #}
-        <td>{{ item.product.name }}</td>
+        <td><a href="{% url 'jewelstock:product_detail' pk=item.product.product_code %}">{{ item.product.name }}</a></td>
 
         {# ID #}
         <td>{{ item.id }}</td>

@@ -66,6 +66,9 @@ class Product(models.Model):
     def get_categories_obj(self):
         return self.category_set.all()
     
+    def count_item(self):
+        return Item.objects.filter(product=self).count()
+    
 # 商品画像
 def get_photos_path(instance, filename):
     return "jewelstock/product/%s/image/%s"%(str(instance.product.pk), filename)

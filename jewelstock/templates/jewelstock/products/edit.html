@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block head_title %}product_edit - {{ product.name }}{% endblock %}
+{% block body_title %}product_edit - {{ product.name }}{% endblock %}
+
+
+{% block content %}
+<form action="" method="POST" id="productForm" class="form w-50 mx-auto">
+    {% csrf_token %}
+    <table class="table">
+        {# 商品コード #}
+        <tr>
+            <th>商品コード(編集不可)</th>
+            <td>{{ product.product_code }}</td>
+        </tr>
+
+        {# 商品名 #}
+        <tr>
+            <th>商品名</th>
+            <td><input type="text" name="name" class="w-100" value={{request.POST.name|default:product.name}}></td>
+        </tr>
+
+        {# カテゴリー #}
+        <tr>
+            <th>カテゴリー</th>
+            <td>
+                <div id="categoryField">
+                    {% for category in categories %}
+                    <label>
+                        <input type="checkbox" name="categories" value={{ category.name }} {% if category in product.category.all %}checked{% endif %}>
+                        {{ category.name }}
+                    </label>
+                    <br>
+                    {% endfor %}
+                    
+                    {% for category in request.POST.categories %}
+                        {% if category.type == "text" %}
+                        <input type="text" name="categories" class="category w-100 d-block" value="{{ category.value }}">
+                        {% endif %}
+                    {% endfor %}
+                
+                    <input type="text" name="categories" class="category w-100 d-block">
+                </div>
+                <button class="btn btn-light" id="addCategory"><i class="fa-solid fa-plus"></i></button>
+            </td>
+        </tr>
+
+        {# 商品説明 #}
+        <tr>
+            <th>商品説明</th>
+            <td><textarea name="description" class="w-100">{{request.POST.description|default:product.description}}</textarea></td>
+        </tr>
+
+        {# 重量 #}
+        <tr>
+            <th>重量</th>
+            <td><input type="text" name="weight" class="w-100" value="{{request.POST.weight|default:product.weight|default:''}}"></td>
+        </tr>
+
+        {# サイズ #}
+        <tr>
+            <th>サイズ</th>
+            <td><input type="text" name="size" class="w-100" value="{{request.POST.size|default:product.size|default:''}}"></td>
+        </tr>
+
+        {# 税込み価格 #}
+        <tr>
+            <th>税込み価格</th>
+            <td><input type="number" name="price" class="w-100" value="{{request.POST.price|default:product.price}}"></td>
+        </tr>
+
+    </table>
+
+    {# 送信ボタン #}
+    <button type="submit" class="btn btn-danger d-block mx-auto">保存</button>
+</form>
+{% endblock %}
+
+{% block script %}
+{# +ボタン押下でカテゴリ欄を複製する処理 #}
+<script>
+const addCategoryButton = document.getElementById('addCategory');
+const categoryField = document.getElementById('categoryField');
+const textField = document.querySelector('#categoryField input[type="text"]');
+
+addCategoryButton.addEventListener('click',  (e) => {
+
+    // デフォルトの送信処理をキャンセル
+    e.preventDefault();
+    // カテゴリのテキストフィールドを複製して追加
+    let clone_category = textField.cloneNode(false);
+    // 入力済み文字の削除
+    clone_category.value = '';
+    // 子要素の最後に追加
+    categoryField.appendChild(clone_category);
+});
+</script>
+
+{% endblock %}

@@ -22,8 +22,7 @@
         <th>商品名</th>
         <th>商品コード</th>
         <th>カテゴリ</th>
-        <th>サイズ</th>
-        <th>重量</th>
+        <th>在庫数</th>
         <th>操作</th>
     </tr>
 
@@ -42,19 +41,14 @@
             {% endfor %}
         </td>
         
-        {# サイズ #}
+        {# 在庫数 #}
         <td>
-            {{ product.size|default:'-' }}
-        </td>
-
-        {# 重量 #}
-        <td>
-            {{ product.weight|default:'-' }}
+            {{ product.count_item }}
         </td>
 
         {# 操作 #}
         <td>
-            <a href="" class="btn btn-primary">詳細</a>
+            <a href="{% url 'jewelstock:product_detail' pk=product.product_code %}" class="btn btn-primary">詳細</a>
         </td>
     </tr>
     {% endfor %}

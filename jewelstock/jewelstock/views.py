@@ -217,6 +217,83 @@ class ProductCreateView(View):
     
 product_create_view = ProductCreateView.as_view()
 
+# 商品詳細
+class ProductDetailView(View):
+    def get(self, request, pk, *args, **kwargs):
+        context = {}
+        context['product'] = Product.objects.get(pk=pk)
+        return render(request, 'jewelstock/products/detail.html', context)
+    
+product_detail_view = ProductDetailView.as_view()
+
+# 商品編集
+class ProductEditView(View):
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            product = Product.objects.get(pk=pk)
+        except:
+            return redirect('jewelstock:products')
+        
+        context = {}
+        context['product'] = product
+        context['categories'] = ProductCategory.objects.all()
+        return render(request, 'jewelstock/products/edit.html', context)
+    
+    def post(self, request, pk, *args, **kwargs):
+        try:
+            product = Product.objects.get(pk=pk)
+        except:
+            return redirect('jewelstock:products')
+        
+        copied = request.POST.copy()
+        copied['product_code'] = pk
+        form = ProductForm(copied, instance=product)
+        categories = request.POST.getlist('categories')
+
+        if form.is_valid():
+            # バリデーションOK
+            edited_product = form.save()
+
+            # 新規商品にManytoManyFieldを追加
+            for category in categories:
+                category_obj = ProductCategory.objects.get_or_create(name=category)[0]
+                edited_product.category.add(category_obj)
+
+            edited_product.save()
+            print('商品を編集しました。')
+            messages.success(request, '商品を編集しました')
+            return redirect('jewelstock:product_detail', pk=pk)
+        
+        else:
+            # バリデーションNG
+            values = form.errors.get_json_data().values()
+            print(form)
+            for value in values:
+                for v in value:
+                    print(v)
+                    messages.error(request, v["message"])
+
+
+        return redirect('jewelstock:product_edit', pk=pk)
+    
+product_edit_view = ProductEditView.as_view()
+
+# 商品削除
+class ProductDeleteView(View):
+    def post(self, request, pk, *args, **kwargs):
+        try:
+            product = Product.objects.get(pk=pk)
+        except:
+            return redirect('jewelstock:products')
+        
+        product.delete()
+        print('商品を削除しました。')
+        messages.success(request, '商品を削除しました。')
+        return redirect('jewelstock:products')
+
+product_delete_view = ProductDeleteView.as_view()
+
+
 # 顧客向け商品紹介ページ
 class OpenedProductsView(View):
     def get(self, request, pk, *args, **kwargs):

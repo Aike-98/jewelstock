@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block head_title %}product_detail - {{product.name}}{% endblock %}
+{% block body_title %}product_detail - {{product.name}}{% endblock %}
+
+
+{% block content %}
+
+{# ========== 操作 ========== #}
+<a href="{% url 'jewelstock:product_edit' pk=product.product_code %}" class="btn btn-primary">編集</a>
+<form action="{% url 'jewelstock:product_delete' pk=product.product_code %}" method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">削除</button>
+</form>
+
+{# ========== 詳細情報 ========== #}
+<table class="table">
+    {# 商品名 #}
+    <tr>
+        <th>商品名</th>
+        <td>{{ product.name }}</td>
+    </tr>
+
+    {# 商品コード #}
+    <tr>
+        <th>商品コード</th>
+        <td>{{ product.product_code }}</td>
+    </tr>
+
+    {# カテゴリー #}
+    <tr>
+        <th>カテゴリー</th>
+        <td>
+            {% for category in product.category.all %}
+                {{ category.name }}<br>
+            {% endfor %}
+        </td>
+    </tr>
+
+    {# 商品説明 #}
+    <tr>
+        <th>商品説明</th>
+        <td>{{ product.description }}</td>
+    </tr>
+
+    {# 重量 #}
+    <tr>
+        <th>重量</th>
+        <td>{{ product.weight|default:'-' }}</td>
+    </tr>
+
+    {# サイズ #}
+    <tr>
+        <th>サイズ</th>
+        <td>{{ product.size|default:'-' }}</td>
+    </tr>
+
+    {# 税込み価格 #}
+    <tr>
+        <th>税込み価格</th>
+        <td>{{ product.price }}</td>
+    </tr>
+
+    {# 在庫数 #}
+    <tr>
+        <th>在庫数</th>
+        <td>
+            {{ product.count_item }}
+            <form action="{% url 'jewelstock:stock' %}" class="d-inline">
+                <input type="hidden" name="keyword" value={{ product.name }}>
+                <button type="submit" class="btn btn-secondary">在庫確認</button>
+            </form>
+        </td>
+    </tr>
+</table>
+
+
+
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+</script>
+{% endblock %}

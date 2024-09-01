@@ -31,6 +31,9 @@ class ItemAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'item', 'ordered_material', 'workplace', 'order_date', 'delivery_date')
 
+class ItemExistenceAdmin(admin.ModelAdmin):
+    list_display = ('id', 'item', 'existence', 'confirmed_date')
+
 class ProcessAdmin(admin.ModelAdmin):
     list_display = ('operation', 'workplace')
 
@@ -49,5 +52,6 @@ admin.site.register(Material, MaterialAdmin)
 admin.site.register(ItemMaterial, ItemMaterialAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Order, OrderAdmin)
+admin.site.register(ItemExistence, ItemExistenceAdmin)
 admin.site.register(Process, ProcessAdmin)
 admin.site.register(Progress, ProgressAdmin)

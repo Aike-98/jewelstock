@@ -2,6 +2,8 @@ asgiref==3.8.1
 Django==5.0.7
 django-bootstrap-form==3.4
 pillow==10.4.0
+pypng==0.20220715.0
+PyQRCode==1.2.1
 python-dotenv==1.0.1
 python-magic==0.4.27
 setuptools==71.1.0

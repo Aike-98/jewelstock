@@ -36,6 +36,8 @@
                 {% endfor %}
             </td>
             <td>
+                <a href="{% url 'jewelstock:stock_existence' pk=item.id %}" class="btn btn-warning">店頭確認</a>
+                <a href="{% url 'jewelstock:create_qr' pk=item.id %}" class="btn btn-success">QR生成</a>
                 <a href="" class="btn btn-danger">売却済み</a>
             </td>
         </tr>

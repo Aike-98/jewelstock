@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.utils import timezone
+from django.utils.timezone import localtime
 from django.utils.safestring import mark_safe
 from django.db.models import Q
 
@@ -50,9 +51,9 @@ class Product(models.Model):
     product_code_regex = RegexValidator(regex=r'^[0-9]{14}$')
     product_code = models.PositiveIntegerField(verbose_name='商品コード', primary_key=True, validators=[product_code_regex])
     name = models.CharField(verbose_name='商品名', max_length=200)
-    category = models.ManyToManyField(ProductCategory, verbose_name='カテゴリー')
+    category = models.ManyToManyField(ProductCategory, verbose_name='カテゴリー', blank=True)
     description = models.CharField(verbose_name='商品説明', max_length=400)
-    weight = models.PositiveIntegerField(verbose_name='重量', null=True, blank=True)
+    weight = models.CharField(verbose_name='重量', max_length=200, null=True, blank=True)
     size = models.CharField(verbose_name='サイズ', max_length=200, null=True, blank=True)
     price = models.PositiveIntegerField(verbose_name='税込み価格')
 
@@ -111,12 +112,23 @@ class Item(models.Model):
     
     def get_all_progresses(self):
         return Progress.objects.filter(item=self).order_by('start_date').reverse()
+    
+    def get_now_existence(self):
+        now = localtime(timezone.now())
+        today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        return ItemExistence.objects.filter(confirmed_date__gte=today, item=self.id)
 
 # 材料-アイテムの中間テーブル
 class ItemMaterial(models.Model):
     item = models.ForeignKey(Item, verbose_name='アイテム', on_delete=models.CASCADE)
     material = models.ForeignKey(Material, verbose_name='材料', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='個数')
+
+# 店頭確認の履歴テーブル
+class ItemExistence(models.Model):
+    item = models.ForeignKey(Item, verbose_name='アイテム', on_delete=models.CASCADE)
+    existence = models.BooleanField(verbose_name='店頭確認', default=False)
+    confirmed_date = models.DateTimeField(verbose_name='確認日時', auto_now_add=True)
 
 # 発注
 class Order(models.Model):

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block head_title %}confirm_item_existence - {{item.pk}}{% endblock %}
+{% block body_title %}confirm_item_existence - {{item.pk}}{% endblock %}
+
+
+{% block content %}
+
+{# 基本情報 #}
+<section>
+    <h3 class="text-lg w-100 bg-success">店頭確認</h3>
+
+    <div>
+        {% for message in messages %}
+        
+        {% endfor %}
+    </div>
+
+    <form action="" method="POST" id='stock_existence_form'>
+        {% csrf_token %}
+        <span>この商品が店頭に存在することを確認しました。</span>
+        <input type="hidden" name="item_id" value="{{ item.pk }}">
+        <button type="submit">確認</button>
+    </form>
+</section>
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+
+</script>
+{% endblock %}
+
+{% comment %} 
+https://qiita.com/PoodleMaster/items/0afbce4be7e442e75be6
+↑QRコード生成方法
+{% endcomment %}

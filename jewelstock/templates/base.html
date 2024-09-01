@@ -31,6 +31,7 @@
 
     <body>
         <header class="bg-primary"> 
+            <a href="{% url 'jewelstock:index' %}" class="h2 text-warning">JewelStock</a>
             <a href="{% url 'signup' %}" class="btn btn-light m-2">会員登録</a>
             <a href="{% url 'login' %}"  class="btn btn-light m-2">ログイン</a>
             <form action="{% url 'logout' %}" method="POST">
@@ -47,11 +48,11 @@
             </span>
         </header>
 
-        <div class="row mx-0">
+        <div class="row mx-0 h-100">
 
         {# サイドバー #}
         {% if request.user.is_authenticated %}
-        <div class="col-lg-2 navigation h-100 bg-secondary">
+        <div class="col-lg-2 navigation h-100 bg-light">
             <ul>
                 <li><a href="{% url 'jewelstock:stock' %}">在庫管理</a></li>
                 <li><a href="">発注管理</a></li>
@@ -68,6 +69,17 @@
             <h1>
                 {% block body_title%}{% endblock %}
             </h1>
+
+            {# メッセージ欄 #}
+            <div class="notify_message_area">
+                {% for message in messages %}
+                <div class="notify_message notify_message_{{ message.tags }}">
+                        <div class="notify_message_content">{{ message }}</div>
+                        <div class="notify_message_delete"><i class="fas fa-times"></i></div>
+                </div>
+                {% endfor %}
+            </div>
+            
             <div class="content m-3">
                 {% block content %}{% endblock %}
             </div>

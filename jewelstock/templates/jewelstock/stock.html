@@ -8,15 +8,45 @@
 {% block content %}
 {# 検索フォーム #}
 <form action="" class="form p-3 bg-warning">
-    <label>商品名<input type="text" name="keyword" value="{{ request.GET.keyword }}" id="search_form" autocomplete="off" list="search_form_result"></label>
+    {# 商品名 #}
+    <label>
+        商品名
+        <input type="text" name="keyword" value="{{ request.GET.keyword }}" id="search_form" autocomplete="off" list="search_form_result">
+    </label>
     <datalist id="search_form_result"></datalist>
+
+    {# 工程 #}
+    <label>
+        工程
+        <select name="process" id="">
+            <option value="">すべて</option>
+            {% for process in processes %}
+                <option value="{{ process.operation }}" {% if process.operation == request.GET.process %}selected{% endif %}>{{ process.operation }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    {# 場所 #}
+    <label>
+        場所
+        <select name="workplace" id="">
+            <option value="">すべて</option>
+            {% for place in workplaces %}
+                <option value="{{ place.pk }}" {% if place.pk|stringformat:'s' == request.GET.workplace %}selected{% endif %}>{{ place.name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    {# 検索・リセットボタン #}
     <button type="submit" class="btn btn-primary">検索</button>
+    <a href="{% url 'jewelstock:stock' %}" class="btn btn-primary">リセット</a>
 </form>
+
 
 {# 在庫リスト #}
 <form action="" method="POST">
 {% csrf_token %}
-<button type="submit" class="btn btn-danger">選択アイテムを売却済みにする</button>
+{% comment %} <button type="submit" class="btn btn-danger">選択アイテムを売却済みにする</button> {% endcomment %}
 <table class="table">
     <tr>
         <th>選択</th>
@@ -31,28 +61,48 @@
                 <option value="">fuga</option>
             </select>
         </th>
+        <th>店頭確認</th>
         <th>操作</th>
     </tr>
 
+    {# エンプティステート #}
     {% if not items %}
         <tr> <td colspan="6" class="text-center">該当商品なし</td> </tr>
     {% endif %}
 
     {% for item in items %}
     <tr>
+        {# チェックボックス #}
         <td><input type="checkbox" id="{{ item.id }}"></td>
+
+        {# 商品名 #}
         <td>{{ item.product.name }}</td>
+
+        {# ID #}
         <td>{{ item.id }}</td>
+
+        {# 工程 #}
         <td>
             {% for progress in item.get_now_progresses %}
                 {{ progress.process.operation }}<br>
             {% endfor %}
         </td>
+
+        {# 場所 #}
         <td>
             {% for progress in item.get_now_progresses %}
                 {{ progress.process.workplace }}<br>
             {% endfor %}
         </td>
+
+        {# 店頭確認 #}
+        <td>
+            {% for obj in item.get_now_existence %}
+                {{ obj.confirmed_date }}
+            {% endfor %}
+        </td>
+
+        {# 操作 #}
         <td>
             <a href="{% url 'jewelstock:stock_detail' pk=item.id %}" class="btn btn-primary">詳細</a>
             <a href="" class="btn btn-danger">売却済み</a>

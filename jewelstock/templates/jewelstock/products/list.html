@@ -6,6 +6,9 @@
 
 
 {% block content %}
+{# 新規作成ボタン #}
+<a href="{% url 'jewelstock:products_create' %}" class='btn btn-lg btn-danger'>新規作成</a>
+
 {# 検索フォーム #}
 <form action="" class="form p-3 bg-warning">
     <label>商品名<input type="text" name="keyword" value="{{ request.GET.keyword }}"></label>

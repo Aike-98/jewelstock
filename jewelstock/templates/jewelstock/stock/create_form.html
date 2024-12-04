@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block head_title %}stock - create{% endblock %}
+{% block body_title %}stock - create{% endblock %}
+
+
+{% block content %}
+<form action="" method="POST" id="StockForm" class="form w-50 mx-auto">
+    {% csrf_token %}
+    <table class="table">
+
+        {# 商品名 #}
+        <tr>
+            <th>商品名</th>
+            <td>
+                <select name="product_code">
+                    {% for product in products %}
+                        <option value="{{ product.product_code }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+
+    </table>
+
+    {# 送信ボタン #}
+    <button type="submit" class="btn btn-danger d-block mx-auto">作成</button>
+</form>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

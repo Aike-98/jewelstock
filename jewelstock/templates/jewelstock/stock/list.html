@@ -6,7 +6,10 @@
 
 
 {% block content %}
-{# 検索フォーム #}
+{# ========== 操作 ========== #}
+<a href="{% url 'jewelstock:stock_create' %}" class="btn btn-primary">追加</a>
+
+{# ========== 検索フォーム ========== #}
 <form action="" class="form p-3 bg-warning">
     {# 商品名 #}
     <label>
@@ -43,7 +46,7 @@
 </form>
 
 
-{# 在庫リスト #}
+{# ========== 在庫リスト ========== #}
 <form action="" method="POST">
 {% csrf_token %}
 {% comment %} <button type="submit" class="btn btn-danger">選択アイテムを売却済みにする</button> {% endcomment %}

@@ -16,3 +16,8 @@ class ItemExistenceForm(forms.ModelForm):
         model = ItemExistence
         fields = ['item', 'existence']
 
+# Progressフォーム
+class ProgressForm(forms.ModelForm):
+    class Meta:
+        model = Progress
+        fields = ['item', 'process', 'start_date', 'due_date', 'end_date', 'confirmor']

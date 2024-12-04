@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block head_title %}stock_detail - {{item.pk}}{% endblock %}
+{% block body_title %}stock_detail - {{item.pk}}{% endblock %}
+
+
+{% block content %}
+
+{# 基本情報 #}
+<section>
+    <h3 class="text-lg w-100 bg-success">基本情報</h3>
+
+    <table class="table">
+        <tr>
+            <th>商品名</th>
+            <th>アイテムID</th>
+            <th>工程</th>
+            <th>場所</th>
+            <th>操作</th>
+        </tr>
+
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.id }}</td>
+            <td>
+                {% for progress in item.get_now_progresses %}
+                    {{ progress.process.operation }}<br>
+                {% endfor %}
+            </td>
+            <td>
+                {% for progress in item.get_now_progresses %}
+                    {{ progress.process.workplace }}<br>
+                {% endfor %}
+            </td>
+            <td>
+                <a href="{% url 'jewelstock:stock_existence' pk=item.id %}" class="btn btn-warning">店頭確認</a>
+                <a href="{% url 'jewelstock:create_qr' pk=item.id %}" class="btn btn-success">QR生成</a>
+                <a href="" class="btn btn-danger">売却済み</a>
+                <form action="{% url 'jewelstock:stock_delete' pk=item.id %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">削除</button>
+                </form>
+            </td>
+        </tr>
+
+
+    </table>
+
+</section>
+
+{# 生産工程 #}
+<section>
+    <h3 class="text-lg w-100 bg-success">生産工程</h3>
+    <table class="table">
+        <tr>
+            <th>工程</th>   
+            <th>場所</th>
+            <th>開始日</th>
+            <th>期限</th>
+            <th>終了日</th>
+            <th>確認者</th>
+            <th>操作</th>
+        </tr>
+        {% for progress in item.get_all_progresses %}
+        <tr>
+            <td>{{progress.process.operation}}</td>
+            <td>{{progress.process.workplace}}</td>
+            <td>{{progress.start_date|default:'-'}}</td>
+            <td>{{progress.due_date|default:'-'}}</td>
+            <td>{{progress.end_date|default:'-'}}</td>
+            <td>{{progress.confirmor|default:'-'}}</td>
+            {# 操作 #}
+            <td>
+                <form action="{% url 'jewelstock:progress_delete' pk=progress.pk %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="path" value="{{ request.get_full_path }}">
+                    <button type="submit" class="btn btn-danger">削除</button>
+                </form>
+                <button class="btn btn-danger">完了</button>
+            </td>
+        </tr>
+        {% endfor %}
+
+        {# 新規フォーム #}
+        <form action="" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="path" value="{{ request.get_full_path }}">
+        
+        <tr class="bg-secondary">
+            <div name="new_progress">
+                {# 工程 #}
+                <td colspan ="2">
+                    <select name="process" class="w-100">
+                        {% for process in processes %}
+                            <option value="{{ process.pk }}">{{ process.operation }} - {{ process.workplace }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+
+                {# 開始日 #}
+                <td><input type="date" name="start_date"></td>
+                
+                {# 期限 #}
+                <td><input type="date" name="due_date"></td>
+
+                {# 終了日 #}
+                <td>-</td>
+
+                {# 確認者 #}
+                <td>-</td>
+
+                {# 追加 #}
+                <td></td>
+
+            </div>
+        </tr>
+
+        <tr class="bg-secondary">
+            <div name="new_progress">
+                {# 工程 #}
+                <td colspan ="2">
+                    <select name="process" id="" class="w-100" placeholder="選択">
+                        {% for process in processes %}
+                            <option value="{{ process.pk }}">{{ process.operation }} - {{ process.workplace }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+
+                {# 開始日 #}
+                <td><input type="date" name="start_date"></td>
+                
+                {# 期限 #}
+                <td><input type="date" name="due_date"></td>
+
+                {# 終了日 #}
+                <td>-</td>
+
+                {# 確認者 #}
+                <td>-</td>
+
+                {# 追加 #}
+                <td></td>
+
+            </div>
+        </tr>
+
+        {# 保存ボタン #}
+        <tr>
+            <td colspan="7" class="w-100 text-center bg-secondary">
+                <button type="submit" class="btn btn-light">保存</button>
+            </td>
+        </tr>
+
+        </form>
+
+        {# 新規フォーム追加ボタン #}
+        <tr>
+            <td colspan="7" class="w-100 text-center">
+                <span><button class="btn btn-light"><i class="fa-solid fa-plus"></i></button></span>
+            </td>
+        </tr>
+    </table>
+</section>
+
+{# 材料 #}
+<section>
+    <h3 class="text-lg w-100 bg-success">材料</h3>
+    <table class="table">
+        <tr>
+            <th>材料</th>   
+            <th>必要数</th>
+            <th>単位</th>
+        </tr>
+        {% for itemmaterial in item.itemmaterial_set.all %}
+        <tr>
+            <td>{{itemmaterial.material.name}}</td>
+            <td>{{itemmaterial.quantity}}</td>
+            <td>{{itemmaterial.material.unit}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+</script>
+{% endblock %}

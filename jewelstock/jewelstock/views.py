@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .models import *
 from .forms import *
@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.conf import settings
 import os
 import pyqrcode
-from django.urls import reverse
+from django.urls import reverse, resolve
 
 class IndexView(View):
     def get(self, request, *args, **kwargs):
@@ -59,7 +59,7 @@ class StockView(View):
         context['workplaces'] = workplaces
         context['processes'] = processes
 
-        return render(request, 'jewelstock/stock.html', context)
+        return render(request, 'jewelstock/stock/list.html', context)
     
     def post(self, request, *args, **kwargs):
         item_id = request.POST.get('item_id')
@@ -72,9 +72,71 @@ class StockDetailView(View):
     def get(self, request, pk, *args, **kwargs):
         context = {}
         context['item'] = Item.objects.get(pk=pk)
-        return render(request, 'jewelstock/stock_detail.html', context)
+        context['processes'] = Process.objects.all()
+        return render(request, 'jewelstock/stock/detail.html', context)
+    
+    # def post(self, request, pk, *args, **kwargs):
+    #     item = get_object_or_404(Item, id=pk)
+    #     new_progresses = {}
+    #     new_progresses['process'] = request.POST.getlist('process')
+    #     new_progresses['start_date'] = request.POST.getlist('start_date')
+    #     new_progresses['due_date'] = request.POST.getlist('due_date')
+
+    #     print(new_progresses)
+    #     for i in range(0, len(new_progresses['process']), 1):
+    #         new_progress = {}
+    #         new_progress['item'] = item
+    #         new_progress['process'] = new_progresses['process'][i]
+    #         new_progress['start_date'] = new_progresses['start_date'][i]
+    #         new_progress['due_date'] = new_progresses['due_date'][i]
+
+    #         form = ProgressForm(new_progress)
+
+    #         if form.is_valid():
+    #             form.save()
+    #             messages.success(request, '工程を追加しました')
+        
+    #         else:
+    #             # バリデーションNG
+    #             values = form.errors.get_json_data().values()
+    #             for value in values:
+    #                 for v in value:
+    #                     messages.error(request, v["message"])
+            
+
+    #     context = {}
+    #     context['item'] = item
+    #     context['processes'] = Process.objects.all()
+    #     return render(request, 'jewelstock/stock/detail.html', context)
 
 stock_detail_view = StockDetailView.as_view()
+
+# 新規作成
+class StockCreateView(View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        context['products'] = Product.objects.all()
+        return render(request, 'jewelstock/stock/create_form.html', context)
+    
+    def post(self, request, *args, **kwargs):
+        product = request.POST.get('product_code')
+        item = Item()
+        item.product = Product.objects.get(product_code=product)
+        item.save()
+        return redirect('jewelstock:stock')
+
+stock_create_view = StockCreateView.as_view()
+
+# 削除
+class StockDeleteView(View):
+    def post(self, request, pk, *args, **kwargs):
+        item = get_object_or_404(Item, pk=pk)
+        item.delete()
+        print('アイテムを削除しました。')
+        messages.success(request, 'アイテムを削除しました。')
+        return redirect('jewelstock:stock')
+
+stock_delete_view = StockDeleteView.as_view()
 
 
 # QR生成
@@ -99,7 +161,7 @@ class StockExistenceView(View):
         # ログイン済みの場合、店頭確認ページを表示
         context = {}
         context['item'] = Item.objects.get(pk=pk)
-        return render(request, 'jewelstock/stock_existence.html', context)
+        return render(request, 'jewelstock/stock/confirm_existence.html', context)
     
     def post(self, request, *args, **kwargs):
         # ログインしていない場合、顧客向けページへリダイレクト
@@ -160,6 +222,30 @@ class ProgressView(View):
 
 progress_view = ProgressView.as_view()
 
+class ProgressDeleteView(View):
+    def post(self, request, pk, *args, **kwargs):
+        path = request.POST.get('path')
+        print(f'path:{path}')
+        print(f'resolverMatch:{resolve(path)}')
+        appname = resolve(path).app_name
+        urlname = resolve(path).url_name
+        id = resolve(path).kwargs['id']
+        print(f'urlname:{urlname}')
+        progress = get_object_or_404(Progress, pk=pk)    
+        progress.delete()
+        print('工程を削除しました。')
+        messages.success(request, '工程を削除しました。')
+
+        return redirect(appname + ':' + urlname, pk=id)
+
+progress_delete_view = ProgressDeleteView.as_view()
+
+class ProgressCreateView(View):
+    def get(self, request, pk, *args, **kwargs):
+        return
+    
+    def post(self, request, pk, *args, **kwargs):
+        return
 
 # =======================================
 # 商品管理
@@ -170,7 +256,7 @@ class ProductsView(View):
     def get(self, request, *args, **kwargs):
         context = {}
         context['products'] = Product.objects.all()
-        return render(request, 'jewelstock/products/list.html', context)
+        return render(request, 'jewelstock/product/list.html', context)
 
 products_view = ProductsView.as_view()
 
@@ -181,27 +267,33 @@ class ProductCreateView(View):
         context = {}
         context['form'] = form
         context['categories'] = ProductCategory.objects.all()
-        return render(request, 'jewelstock/products/create_form.html', context)
+        return render(request, 'jewelstock/product/create_form.html', context)
 
     def post(self, request, *args, **kwargs):
         print(request.POST)
 
-        categories = request.POST.getlist('categories')
         form = ProductForm(request.POST)
+
+        # カテゴリの新規作成と取得
+        categories = request.POST.getlist('categories')
+        category_objs = []
+        for category in categories:
+            category_obj = ProductCategory.objects.get_or_create(name=category)[0]
+            category_objs.append(category_obj)
+            
 
         if form.is_valid():
             # バリデーションOK
             new_product = form.save()
 
             # 新規商品にManytoManyFieldを追加
-            for category in categories:
-                category_obj = ProductCategory.objects.get_or_create(name=category)[0]
-                new_product.category.add(category_obj)
-
+            for category in category_objs:
+                new_product.category.add(category)
             new_product.save()
+
             print('商品を新規作成しました。')
             messages.success(request, '商品を新規作成しました')
-            return redirect('jewelstock:products')
+            return redirect('jewelstock:product')
         
         else:
             # バリデーションNG
@@ -213,7 +305,7 @@ class ProductCreateView(View):
                     messages.error(request, v["message"])
 
 
-        return redirect('jewelstock:products')
+        return redirect('jewelstock:product')
     
 product_create_view = ProductCreateView.as_view()
 
@@ -222,7 +314,7 @@ class ProductDetailView(View):
     def get(self, request, pk, *args, **kwargs):
         context = {}
         context['product'] = Product.objects.get(pk=pk)
-        return render(request, 'jewelstock/products/detail.html', context)
+        return render(request, 'jewelstock/product/detail.html', context)
     
 product_detail_view = ProductDetailView.as_view()
 
@@ -232,18 +324,15 @@ class ProductEditView(View):
         try:
             product = Product.objects.get(pk=pk)
         except:
-            return redirect('jewelstock:products')
+            return redirect('jewelstock:product')
         
         context = {}
         context['product'] = product
         context['categories'] = ProductCategory.objects.all()
-        return render(request, 'jewelstock/products/edit.html', context)
+        return render(request, 'jewelstock/product/edit.html', context)
     
     def post(self, request, pk, *args, **kwargs):
-        try:
-            product = Product.objects.get(pk=pk)
-        except:
-            return redirect('jewelstock:products')
+        product = get_object_or_404(Product, product_code=pk)    
         
         copied = request.POST.copy()
         copied['product_code'] = pk
@@ -281,15 +370,11 @@ product_edit_view = ProductEditView.as_view()
 # 商品削除
 class ProductDeleteView(View):
     def post(self, request, pk, *args, **kwargs):
-        try:
-            product = Product.objects.get(pk=pk)
-        except:
-            return redirect('jewelstock:products')
-        
+        product = get_object_or_404(Product, product_code=pk)    
         product.delete()
         print('商品を削除しました。')
         messages.success(request, '商品を削除しました。')
-        return redirect('jewelstock:products')
+        return redirect('jewelstock:product')
 
 product_delete_view = ProductDeleteView.as_view()
 

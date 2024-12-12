@@ -241,11 +241,39 @@ class ProgressDeleteView(View):
 progress_delete_view = ProgressDeleteView.as_view()
 
 class ProgressCreateView(View):
-    def get(self, request, pk, *args, **kwargs):
-        return
-    
     def post(self, request, pk, *args, **kwargs):
-        return
+        item = get_object_or_404(Item, id=pk)
+        new_progresses = {}
+        new_progresses['process'] = request.POST.getlist('process')
+        new_progresses['start_date'] = request.POST.getlist('start_date')
+        new_progresses['due_date'] = request.POST.getlist('due_date')
+
+        print(new_progresses)
+        for i in range(0, len(new_progresses['process']), 1):
+            new_progress = {}
+            new_progress['item'] = item
+            new_progress['process'] = new_progresses['process'][i]
+            new_progress['start_date'] = new_progresses['start_date'][i]
+            new_progress['due_date'] = new_progresses['due_date'][i]
+
+            form = ProgressForm(new_progress)
+
+            if form.is_valid():
+                form.save()
+                messages.success(request, '工程を追加しました')
+        
+            else:
+                # バリデーションNG
+                values = form.errors.get_json_data().values()
+                for value in values:
+                    for v in value:
+                        messages.error(request, v["message"])
+            
+
+        context = {}
+        context['item'] = item
+        context['processes'] = Process.objects.all()
+        return render(request, 'jewelstock/stock/detail.html', context)
 
 # =======================================
 # 商品管理
@@ -266,7 +294,7 @@ class ProductCreateView(View):
         form = ProductForm()
         context = {}
         context['form'] = form
-        context['categories'] = ProductCategory.objects.all()
+        context['categories'] = Category.objects.all()
         return render(request, 'jewelstock/product/create_form.html', context)
 
     def post(self, request, *args, **kwargs):
@@ -278,7 +306,7 @@ class ProductCreateView(View):
         categories = request.POST.getlist('categories')
         category_objs = []
         for category in categories:
-            category_obj = ProductCategory.objects.get_or_create(name=category)[0]
+            category_obj = Category.objects.get_or_create(name=category)[0]
             category_objs.append(category_obj)
             
 
@@ -328,7 +356,7 @@ class ProductEditView(View):
         
         context = {}
         context['product'] = product
-        context['categories'] = ProductCategory.objects.all()
+        context['categories'] = Category.objects.all()
         return render(request, 'jewelstock/product/edit.html', context)
     
     def post(self, request, pk, *args, **kwargs):
@@ -345,7 +373,7 @@ class ProductEditView(View):
 
             # 新規商品にManytoManyFieldを追加
             for category in categories:
-                category_obj = ProductCategory.objects.get_or_create(name=category)[0]
+                category_obj = Category.objects.get_or_create(name=category)[0]
                 edited_product.category.add(category_obj)
 
             edited_product.save()

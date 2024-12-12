@@ -13,23 +13,25 @@ import uuid
 #ここ( https://github.com/django/django/blob/main/django/contrib/auth/models.py )から流用
 class CustomUser(AbstractBaseUser, PermissionsMixin):
 
-    username_validator  = UnicodeUsernameValidator()
-
     # 主キーはUUIDとする。
     id          = models.UUIDField( default=uuid.uuid4, primary_key=True, editable=False )
+
+    username_validator  = UnicodeUsernameValidator()
     username    = models.CharField(
                     _('username'),
                     max_length=150,
-                    unique=True,
                     help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
                     validators=[username_validator],
-                    error_messages={
-                        'unique': _("A user with that username already exists."),
-                    },
                 )
 
     # メールアドレスは入力必須でユニークとする
-    email       = models.EmailField(_('email address'), unique=True)
+    email       = models.EmailField(
+                    _('email address'),
+                    unique=True, 
+                    error_messages={
+                        'unique': _("A user with that email already exists."),
+                    },)
+    
     email_verified = models.BooleanField(verbose_name="メール認証済みか", default=False)
 
     is_staff    = models.BooleanField(

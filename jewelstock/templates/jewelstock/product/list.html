@@ -21,6 +21,7 @@
     <tr>
         <th>商品名</th>
         <th>商品コード</th>
+        <th>型番</th>
         <th>カテゴリ</th>
         <th>在庫数</th>
         <th>操作</th>
@@ -33,6 +34,9 @@
 
         {# 商品コード #}
         <td>{{ product.product_code }}</td>
+
+        {# 形状 #}
+        <td>{{ product.model_number }}</td>
 
         {# カテゴリ #}
         <td>

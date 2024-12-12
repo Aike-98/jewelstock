@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['product_code', 'name', 'description', 'weight', 'size', 'price']
+        fields = ['product_code', 'name', 'description', 'weight', 'size']
 
 # 店頭確認
 class ItemExistenceForm(forms.ModelForm):
